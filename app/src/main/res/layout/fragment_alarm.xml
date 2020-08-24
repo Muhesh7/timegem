@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="model"
+            type="com.example.timegem.Model2" />
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MessageFragment">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/times"
+            android:layout_above="@+id/send"
+            android:layout_centerHorizontal="true"
+            android:paddingEnd="15dp"
+            >
+
+            <TextView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:layout_centerHorizontal="true"
+                android:layout_marginEnd="14dp"
+                android:padding="17dp"
+                android:layout_below="@+id/timebutton"
+                android:id="@+id/timetext" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/timebutton"
+                android:text="Pick-Time"
+                android:layout_centerHorizontal="true"
+                />
+        </RelativeLayout>
+        <Button
+            android:id="@+id/send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="set" />
+
+    </RelativeLayout>
+</layout>
