@@ -29,7 +29,7 @@ public class sound {
    }
    public  void tick()
    {
-       mSoundpool.play(tickSound,1.0f,1.0f,0,-1,1.0f);
+       mSoundpool.play(tickSound,1.0f,1.0f,0,0,1.0f);
 
    }
     public  void stoptick()

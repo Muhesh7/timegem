@@ -143,10 +143,10 @@ Spinner minSpin,secSpin;
             public void onTick(long millisUntilFinished) {
                 time=millisUntilFinished;
                 int sec= (int) (millisUntilFinished/1000);
+                sec=sec%60;
                 mProgressBar.setProgress(sec);
                 int progress= sec;
                 int min= (int) (sec/60);
-                sec=sec%60;
                 int ot=(int) orgtime;
                 String s=Integer.toString(sec);
                 String m=Integer.toString(min);

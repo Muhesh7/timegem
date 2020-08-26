@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
@@ -39,8 +40,7 @@ public class CanvasFragment extends Fragment {
         return fragment;
     }
 
-
-    SharedViewModel mViewModel;
+    Button mStart,mStop,mReset;
     canvas mCanvas;
 
     @Override
@@ -53,35 +53,38 @@ public class CanvasFragment extends Fragment {
         relativeLayout.setLayoutParams(params);
         mCanvas = new canvas(getContext());
         relativeLayout.addView(mCanvas);
+        mStart =view.findViewById(R.id.startButton);
+        mReset =view.findViewById(R.id.resetButton);
+        mStop =view.findViewById(R.id.stopButton);
+        mStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mCanvas.spin(0);
+                mStop.setEnabled(true);
+                mReset.setEnabled(true);
+            }
+        });
+        mStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mCanvas.stop();
+                mReset.setEnabled(true);
+                mStop.setEnabled(false);
+            }
+        });
+        mReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCanvas.reset();
+                mReset.setEnabled(true);
+                mStart.setEnabled(true);
+                mStop.setEnabled(false);
+            }
+        });
         return view;
 
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mViewModel= ViewModelProviders.of(getActivity()).get(SharedViewModel.class);
-        observe();
-    }
-    public void observe()
-    {
-        mViewModel.getData().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                switch (s) {
-                    case "start":
-                        Log.d("Ss1", "ss1");
-                        mCanvas.spin(0);
-
-                        break;
-                    case "stop":
-                        mCanvas.stop();
-                        break;
-                    case "reset":
-                        mCanvas.reset();
-                        break;
-                }
-            }
-        });
-    }
 }
