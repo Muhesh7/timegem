@@ -15,50 +15,49 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class MyJobService extends JobService {
+public class MyJobService extends BroadcastReceiver {
 
    MediaPlayer mPlayer;
+   Data mData;
 
-    public void alarm(JobParameters params) {
-
-         RoomRepo roomRepo=new RoomRepo(getApplication());
-        RoomModel model=roomRepo.getModel(params.getJobId());
+    public void alarm(Context context,int id) {
+         if(mPlayer!=null)
+         {
+             mPlayer.release();
+         }
+        mData=new Data(context);
+        ArrayList<RoomModel> models=mData.Load();
+        RoomModel model=models.get(id);
         if(model!=null) {
-            int id = params.getJobId();
             Uri uri = Uri.parse(model.getSong());
-            mPlayer = MediaPlayer.create(this, uri);
+            mPlayer = MediaPlayer.create(context, uri);
             Calendar calendar = Calendar.getInstance();
             CharSequence charSequence = DateFormat.format("hh:mm", calendar);
             String CurrentDate = charSequence.toString();
-            RoomModel roomModel = new RoomModel();
-            roomModel.setKey(id);
-            roomModel.setSong(model.getSong());
-            roomModel.setTime(model.getTime());
-            roomModel.setStatus("Stop");
-            roomRepo.update(roomModel);
-            if (model.getTime().equals(CurrentDate)) {
+            Log.d("DDD",CurrentDate);
+                RoomModel roomModel = new RoomModel();
+                roomModel.setKey(id);
+                roomModel.setSong(model.getSong());
+                roomModel.setTime(model.getTime());
+                roomModel.setStatus("Stop");
+                models.set(id,roomModel);
+                mData.Save(models);
                 mPlayer.setLooping(true);
                 mPlayer.start();
-                pushNoti.push(this).pushNotification(charSequence.toString(), id);
-            }
+                pushNoti.push(context).pushNotification(charSequence.toString(), id);
+
         }
     }
 
-
     @Override
-    public boolean onStartJob(final JobParameters params) {
+    public void onReceive(Context context, Intent intent) {
+        final int id=intent.getIntExtra("id",0);
+        final Context context1=context;
         new Thread(new Runnable() {
             @Override
             public void run() {
-                alarm(params);
+                alarm(context1,id);
             }
         }).start();
-        return true;
-    }
-
-    @Override
-    public boolean onStopJob(JobParameters params) {
-        mPlayer.stop();
-        return true;
     }
 }

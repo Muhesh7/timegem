@@ -34,6 +34,7 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.MyHold
     @Override
     public void onBindViewHolder(@NonNull recyclerAdapter.MyHolder holder, int position) {
             holder.mCardLayoutBinding.setMode(mModels.get(position));
+
     }
 
     @Override
@@ -49,7 +50,7 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.MyHold
             itemView.status.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mClickInterface.click(getAdapterPosition(),itemView.status.getRootView());
+                    mClickInterface.click(getAdapterPosition(),itemView.status);
                 }
             });
         }

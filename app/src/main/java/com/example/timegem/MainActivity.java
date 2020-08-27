@@ -37,8 +37,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        JobScheduler jobScheduler= (JobScheduler)getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        jobScheduler.cancel(123);
+        int i=0;
+        while (i<=3)
+        { JobScheduler jobScheduler= (JobScheduler)getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        jobScheduler.cancel(i);
+        ++i;}
         mDrawerLayout=findViewById(R.id.drawer);
         mNavigationView=findViewById(R.id.nav);
         height =getResources().getDisplayMetrics().widthPixels;

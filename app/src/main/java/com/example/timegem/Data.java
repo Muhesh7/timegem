@@ -11,26 +11,26 @@ import java.util.ArrayList;
 
 public class Data {
     SharedPreferences mSharedPref;
-    ArrayList<Model2> mModels;
+    ArrayList<RoomModel> mModels;
 
     public Data(Context context) {
-        mSharedPref=context.getSharedPreferences("MyHeros",Context.MODE_PRIVATE);
+        mSharedPref=context.getSharedPreferences("Mys",Context.MODE_PRIVATE);
     }
 
-    public void Save(ArrayList<Model2> superHeroes)
+    public void Save(ArrayList<RoomModel> superHeroes)
     {
         this.mModels =superHeroes;
         SharedPreferences.Editor editor = mSharedPref.edit();
         Gson gson=new Gson();
         String mine=gson.toJson(superHeroes);
-        editor.putString("MyHeroes",mine);
+        editor.putString("M",mine);
         editor.apply();
     }
 
-    public  ArrayList<Model2> Load()
+    public  ArrayList<RoomModel> Load()
     {    Gson gson =new Gson();
-        String mine =mSharedPref.getString("MyHeroes",null);
-        Type type = new TypeToken<ArrayList<Model2>>() {}.getType();
+        String mine =mSharedPref.getString("M",null);
+        Type type = new TypeToken<ArrayList<RoomModel>>() {}.getType();
         mModels =gson.fromJson(mine,type);
         if(mModels ==null)
         {
@@ -39,4 +39,5 @@ public class Data {
 
         return mModels;
     }
+
 }

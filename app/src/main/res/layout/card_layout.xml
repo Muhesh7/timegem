@@ -10,7 +10,7 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         app:cardUseCompatPadding="true">
 
         <RelativeLayout
@@ -23,23 +23,15 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 style="@style/TextAppearance.AppCompat.Large"
-                android:text="@{`Message to `+mode.time}"/>
+                android:text="@{`Alarm at `+mode.time}"/>
 
-            <TextView
-                android:id="@+id/time"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/title"
-                android:padding="10dp"
-                android:text="@{mode.song}"
-                style="@style/ShapeAppearance.MaterialComponents.SmallComponent"
-               />
+
 
             <TextView
                 android:id="@+id/status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
+
                 android:layout_alignParentEnd="true"
                 android:padding="10dp"
                 android:text="@{mode.status}"/>

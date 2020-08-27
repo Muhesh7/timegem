@@ -1,7 +1,9 @@
 package com.example.timegem;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -16,6 +18,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.AlarmClock;
@@ -39,6 +42,7 @@ import java.util.Date;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.ALARM_SERVICE;
 
 
 /**
@@ -90,6 +94,7 @@ public class AlarmFragment extends Fragment implements clickInterface {
     private String ScheduledTime,CurrentDate;
     private ArrayList<RoomModel> mModels=new ArrayList<>();
     recyclerAdapter mRecyclerAdapter;
+    Data mData;
     RecyclerView mRecyclerView;
     FloatingActionButton fab;
     @Override
@@ -98,6 +103,7 @@ public class AlarmFragment extends Fragment implements clickInterface {
         View view=inflater.inflate(R.layout.alarm,container,false);
         mRecyclerView=view.findViewById(R.id.recycler);
         fab=view.findViewById(R.id.fab);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,18 +113,20 @@ public class AlarmFragment extends Fragment implements clickInterface {
         return view;
     }
     AlarmViewModel mViewModel;
-    @Override
+   @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel= ViewModelProviders.of(this).get(AlarmViewModel.class);
-        mViewModel.mData.observe(getViewLifecycleOwner(), new Observer<List<RoomModel>>() {
+        mViewModel= ViewModelProviders.of(getActivity()).get(AlarmViewModel.class);
+        mViewModel.getter().observe(getViewLifecycleOwner(), new Observer<ArrayList<RoomModel>>() {
             @Override
-            public void onChanged(List<RoomModel> roomModels) {
-                  mRecyclerAdapter=new recyclerAdapter((ArrayList<RoomModel>) roomModels,AlarmFragment.this);
-                  mRecyclerView.setAdapter(mRecyclerAdapter);
+            public void onChanged(ArrayList<RoomModel> roomModels) {
+                mModels=roomModels;
+                recyclerAdapter recyclerAdapter=new recyclerAdapter(mModels,AlarmFragment.this);
+                mRecyclerView.setAdapter(recyclerAdapter);
             }
         });
     }
+
 TextView timt,songt;
     private void dialog()
     {
@@ -145,12 +153,12 @@ TextView timt,songt;
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         Calendar calendar1=Calendar.getInstance();
-                        calendar1.set(Calendar.HOUR,hourOfDay);
+                        calendar1.set(Calendar.HOUR_OF_DAY,hourOfDay);
                         calendar1.set(Calendar.MINUTE,minute);
                         calendar1.set(Calendar.SECOND,00);
                         m=minute;
                         h=hourOfDay;
-                        CharSequence charSequence= DateFormat.format("hh:mm:ss",calendar1);
+                        CharSequence charSequence= DateFormat.format("hh:mm",calendar1);
                         ScheduledTime=charSequence.toString();
                         charSequence2= DateFormat.format("hh:mm",calendar1);
                         timt.setText(charSequence2);
@@ -180,22 +188,16 @@ TextView timt,songt;
 
     }
     private void set()
-    {  String format = "hh:mm:ss";
+    {  String format = "hh:mm";
         SimpleDateFormat sdf = new SimpleDateFormat(format);
 
         Calendar calendar=Calendar.getInstance();
         int hour=calendar.get(Calendar.HOUR);
         int minute=calendar.get(Calendar.MINUTE);
-        int year=calendar.get(Calendar.YEAR);
-        int month=calendar.get(Calendar.MONTH);
-        int day=calendar.get(Calendar.DATE);
         Calendar calendar1=Calendar.getInstance();
         calendar1.set(Calendar.HOUR,hour);
         calendar1.set(Calendar.MINUTE,minute);
-        calendar1.set(Calendar.YEAR,year);
-        calendar1.set(Calendar.MONTH,month);
-        calendar1.set(Calendar.DATE,day);
-        CharSequence charSequence= DateFormat.format("hh:mm:ss",calendar1);
+        CharSequence charSequence= DateFormat.format("hh:mm",calendar1);
         CurrentDate=charSequence.toString();
         Date date1= null;
         Date date2=null;
@@ -208,23 +210,19 @@ TextView timt,songt;
 
         long del=date2.getTime()-date1.getTime();
         Log.d("ddd",Long.toString(del));
-
+        int id=mModels.size();
         RoomModel model=new RoomModel();
-        model.setKey(mModels.size());
+        model.setKey(id);
         model.setTime(ScheduledTime);
         model.setSong(songs);
-        mViewModel.insert(model);
-        int id=mModels.size();
-        ComponentName serviceComponent = new ComponentName(getContext(), MyJobService.class);
+        mModels.add(model);
+       mViewModel.setter(mModels);
+        Intent intent =new Intent(getActivity(),MyJobService.class);
+        intent.putExtra("id",id);
+        PendingIntent pendingIntent =PendingIntent.getBroadcast(getActivity(),id,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager= (AlarmManager) getActivity().getSystemService(ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,date2.getTime(),AlarmManager.INTERVAL_DAY,pendingIntent);
 
-        JobInfo jobInfo = new JobInfo.Builder(id, serviceComponent)
-                .setRequiresDeviceIdle(false)
-                .setRequiresCharging(false)
-                .setPersisted(true)
-                .build();
-
-        JobScheduler scheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        int res = scheduler.schedule(jobInfo);
     }
     CharSequence charSequence2;
     TimePickerDialog timePickerDialog;
@@ -251,14 +249,17 @@ TextView timt,songt;
         TextView textView= (TextView) view;
         if(textView.getText().toString().equals("Stop"))
         {
-            JobScheduler jobScheduler= (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            jobScheduler.cancel(position);
+            Intent intent =new Intent(getActivity(),MyJobService.class);
+            PendingIntent pendingIntent =PendingIntent.getBroadcast(getActivity(),position,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager alarmManager= (AlarmManager) getActivity().getSystemService(ALARM_SERVICE);
+            alarmManager.cancel(pendingIntent);
             RoomModel roomModel=new RoomModel();
             roomModel.setStatus("Ring");
             roomModel.setKey(position);
             roomModel.setTime(mModels.get(position).getTime());
             roomModel.setSong(mModels.get(position).getSong());
-            mViewModel.update(roomModel);
+           mModels.set(position,roomModel);
+           mViewModel.setter(mModels);
         }
     }
 }

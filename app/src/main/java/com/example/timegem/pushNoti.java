@@ -35,11 +35,9 @@ public class pushNoti {
         Intent intent=new Intent(mContext.getApplicationContext(),MainActivity.class);
         PendingIntent pendingIntent=PendingIntent.getActivity(mContext.getApplicationContext(),0,intent,0);
 
-        Bitmap bitmap= BitmapFactory.decodeResource(mContext.getResources(),R.drawable.circle);
-        bitmap=Bitmap.createScaledBitmap(bitmap,50,50,false);
+
         Notification notification=new NotificationCompat.Builder(mContext,"BOSS")
-                .setSmallIcon(R.drawable.circle)
-                .setLargeIcon(bitmap)
+                .setSmallIcon(R.drawable.sms)
                 .setContentText("Alarm at \n"+s)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
